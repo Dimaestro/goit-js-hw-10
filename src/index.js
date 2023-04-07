@@ -16,12 +16,14 @@ elements.searchBox.addEventListener('input', debounce(onSerchCountries, DEBOUNCE
 function onSerchCountries(event) {
   let serchName = event.target.value.trim();
 
-  if (serchName === '') return;
+  if (serchName === '') {
+    clearCountries();
+    return;
+  };
 
   fetchCountries(serchName)
   .then(countries => {
-    elements.countryList.innerHTML = '';
-    elements.countryInfo.innerHTML = '';
+    clearCountries();
 
     if (countries.length === 1) {
       elements.countryList.innerHTML = renderCountriesList(countries);
@@ -35,10 +37,9 @@ function onSerchCountries(event) {
       Notify.info('Too many matches found. Please enter a more specific name.');
     }
   })
-  .catch(() => {
-    Notify.failure('Oops, there is no country with that name');
-    elements.countryList.innerHTML = '';
-    elements.countryInfo.innerHTML = '';
+  .catch(error => {
+    Notify.failure(error.message);
+    clearCountries();
   })
 }
 
@@ -59,4 +60,9 @@ function renderCountryInfo(data) {
     <p><b>Population :</b>${item.population}</p>
     <p><b>Languages :</b>${Object.values(item.languages)}</p>`
   }).join('');
+}
+
+function clearCountries() {
+  elements.countryList.innerHTML = '';
+  elements.countryInfo.innerHTML = '';
 }
